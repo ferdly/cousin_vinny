@@ -1,0 +1,11 @@
+name = Cousin Vinny
+description = Gather VIN data prior to pre-populating Form Data
+; (extended description) PENDING
+
+package = QIQgroup Tools
+core = 7.x
+files[] = cousin_vinny.module
+
+
+
+; Additional Notes
