@@ -49,14 +49,14 @@ function drush_cousin_vinny_vin_collect($vin = FALSE) {
   // Check for existence of argument
     $arguments = _vin_arguments(); //use custom function to encapsulate
     if (!$vin) {
-        $vin = drush_choice($arguments, dt('Which Example would you like to interact with using \'PHP-Coder\'?'));
+        $vin = drush_choice($arguments, dt('Which VIN would you like to interact with using \'Cousin Vinny\'?'));
     }
 
   // Check for correct argument
   $correct_args = array_keys($arguments);
   if (!in_array($vin, $correct_args)) {
     if ($vin == '0') {
-      drush_user_abort('Buh-Bye! Node Table List!');
+      drush_user_abort('Buh-Bye! VIN Collect!');
       return;
     }
     $string = _vin_arguments('string');
@@ -64,16 +64,20 @@ function drush_cousin_vinny_vin_collect($vin = FALSE) {
       array('@type' => $example)) . $string);
   }
 
-  drush_print($vin);
-  return;
-  // _drush_execute_node_tablelist($vin);
+  // drush_print($vin);
+  // return;
+  _drush_execute_vin_collect($vin);
 } //END function drush_node_tablelist($vin = FALSE)
 
 function _vin_arguments($vin = 'array'){
   $vin_arguments = array();
-  $vin_arguments['KL1TD5DE2BB119431'] = "2011 Chevrolet Aveo";
-  $vin_arguments['5GAEV23778J206256'] = "2008 Buick Enclave";
-  $vin_arguments['1FDWE35P55HA46480'] = "EXCEPTION: 2005 Ford E-350 Super Duty Van";
+  $vin_arguments['kL1TD5DE2BB119431'] = "2011 Chevrolet Aveo";
+  $vin_arguments['5gAEV23778J206256'] = "2008 Buick Enclave";
+  $vin_arguments['1FdWE35P55HA46480'] = "EXCEPTION: 2005 Ford E-350 Super Duty Van";
+  $vin_arguments['5LAxD94p70LA2372'] = "INVALID: 16 Characters";
+  $vin_arguments['5IAoO94Q70qq2372'] = "INVALID: 16 Characters 6 of I-O-Q";
+  $vin_arguments['5IAoO94Q70qq23:2'] = "INVALID: 16 Characters 6 of I-O-Q and colon";
+  $vin_arguments['5LAXd94p70LO23721'] = "VALID: But Made Up";
 
   switch ($vin) {
     case 'array':

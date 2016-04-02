@@ -4,10 +4,36 @@
  * Example function.
  */
 
-function _drush_execute_node_tablelist($which_list) {
+function _drush_execute_vin_collect($vin) {
     $buffer = '';
-    $buffer .= "'" . $which_list . "' was the argument provided/selected to function '" . __FUNCTION__ . "'.";
+    $message = _vin_prevalidate($vin);
+    $buffer .= "'" . $vin . "' was the argument provided/selected to function '" . __FUNCTION__ . "'. Message: " . $message;
   drush_print($buffer);
+}
+
+function _vin_prevalidate(&$vin){
+    $vin = strtoupper($vin);
+    $error_array = array();
+    if (strlen($vin) !== 17) {
+        $error_array[] = 'expected Lengh of 17 not met [' . strlen($vin) . ']';
+    }
+    if (!ctype_alnum($vin)) {
+        $error_array[] = 'one or more non-AlphNum characters';
+    }
+    $vin_check = 'X' . $vin;
+    $vin_ioq = strpos($vin_check, 'I') + strpos($vin_check, 'O') + strpos($vin_check, 'Q') + 0;
+    if ($vin_ioq > 0) {
+        $error_array[] = "one or more of invalid characters ['I','O','Q']";
+    }
+
+    if (count($error_array) > 0) {
+        $message = 'Value does NOT meet common criteria of a VIN: ';
+        $message .= implode('; ', $error_array) . '.';
+    }else{
+        $message = 'Value meets common criteria of a VIN.';
+    }
+
+    return $message;
 }
 
 function _query_nid_array() {
