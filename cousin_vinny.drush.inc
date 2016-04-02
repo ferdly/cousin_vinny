@@ -17,6 +17,7 @@ function cousin_vinny_drush_command() {
     ),
     'options' => array(
       'dev' => 'is option',
+      'spec' => 'is option',
     ),
   );
 
@@ -32,6 +33,7 @@ $items['vin_collect']['description'] = "Description php_coder: \r\nComposes SQL 
 $items['vin_collect']['arguments']['vin'] = "A valid VIN Number";
 
 $items['vin_collect']['options']['dev'] = "Return any and all pertinent variable data";
+$items['vin_collect']['options']['spec'] = "Supply a Custom or Overloading Specification";
 
 $items['vin_collect']['examples']['drush vin_collect'] = 'Simply returns a listing of the VIN.';
 $items['vin_collect']['examples']['drush vinny'] = 'Using the alias, returns a listing of the VIN';
@@ -63,10 +65,11 @@ function drush_cousin_vinny_vin_collect($vin = FALSE) {
     return drush_set_error(dt('"@type" is not a valid example. ',
       array('@type' => $example)) . $string);
   }
-
+  $specification = drush_get_option('spec','common');
   // drush_print($vin);
+  // drush_print($specification);
   // return;
-  _drush_execute_vin_collect($vin);
+  _drush_execute_vin_collect($vin, $specification);
 } //END function drush_node_tablelist($vin = FALSE)
 
 function _vin_arguments($vin = 'array'){

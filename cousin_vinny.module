@@ -4,14 +4,162 @@
  * Example function.
  */
 
-function _drush_execute_vin_collect($vin) {
+function _drush_execute_vin_collect($vin, $specification = 'common') {
     $buffer = '';
-    $message = _vin_prevalidate($vin);
-    $buffer .= "'" . $vin . "' was the argument provided/selected to function '" . __FUNCTION__ . "'. Message: " . $message;
-  drush_print($buffer);
+    $vin_is_valid = _vin_prevalidate($vin);
+    if ($vin_is_valid !== TRUE) {
+        $message = _vin_prevalidate($vin, TRUE);
+        $buffer .= "'" . $vin . "' was the argument provided/selected to function '" . __FUNCTION__ . "'. Message: " . $message;
+        drush_print($buffer);
+        return;
+    }
+    // $json = drupal_http_request('http://maps.google.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&sensor=false');
+    // $buffer .= '$json = drupal_http_request(' . $vin . ');';
+    $vin_edmunds_array = edmunds_drupalVINparser($vin);
+    $vin_array = _vin_pack($vin_edmunds_array, $specification);
+    $buffer .= "SPEC:\r\n=====\r\n" . print_r($specification , TRUE). "\r\n";
+    $buffer .= "PACKED:\r\n=======\r\n" . print_r($vin_array , TRUE);
+    $buffer .= "EDMUNDS FULL:\r\n=============\r\n" . print_r($vin_edmunds_array , TRUE);
+    drush_print($buffer);
+    return;
 }
 
-function _vin_prevalidate(&$vin){
+function edmunds_drupalVINparser($vin) {
+    /**
+     * full from edmunds apiConsole
+     * \_ http://edmunds.mashery.com/io-docs
+     *
+     * 'https://api.edmunds.com/api/vehicle/v2/vins/2G1FC3D33C9165616?fmt=json&api_key=hwxwzk7x36pxvtvtc8reqtrp'
+     */
+    $
+
+    $dhr = '';
+    $protocol = 'http'; //'https';
+    $dhr .= $protocol;
+    $dhr .= '://api.edmunds.com/';
+    $endpoint = '/api/vehicle/v2/vins/';
+    $dhr .= $endpoint;
+    $dhr .= $vin;
+    $dhr .= '?fmt=';
+    $response_format = 'json';
+    $dhr .= $response_format;
+    $dhr .= '&api_key=';
+    $API_key = 'hwxwzk7x36pxvtvtc8reqtrp';
+    $dhr .= $API_key;
+
+    $dhr_result = drupal_http_request($dhr);
+    // $json = 'drupal_http_request('. $dhr . ')';
+    $dhr_array = json_decode($dhr_result->data, TRUE);
+    // $dhr_array = $dhr_result;
+    // $dhr_array = $dhr;
+    $dhr_array['vin'] = $vin;
+    return $dhr_array;
+}
+
+    function _vin_pack($vin_edmunds_array, $specification = 'common') {
+        $supported_custom_specification_array = array('acme');
+        $supported_from_common_specification_array = array('common', 'vandelay','zenith');
+
+        if (in_array($specification, $supported_from_common_specification_array)) {
+            /**
+             * Could be as simple as:
+             *  - removing unwanted attributes for specification
+             *  - renaming keys for specification
+             * Could be as complex as:
+             *  - changing an explicit value to a custom specification code
+             *  - calculating esoteric $attributes from existing
+             * However, there reaches a point where a 'custom specification' method is indicated
+             *
+             * @var        Function
+             */
+            $vin_common_array = _vin_common_pack($vin_edmunds_array);
+            switch ($specification) {
+                case 'common':
+                    $vin_array = $vin_common_array;
+                    $vin_array['specification']['name'] = $specification;
+                    $vin_array['specification']['type'] = 'common';
+                    $vin_array['specification']['supported'] = 'TTRUE';
+                    break;
+                case 'zenith':
+                    $vin_array = _vin_zenithCarDealer_pack($vin_common_array);
+                    break;
+
+                default:
+                    # Could Re-Write to Throw an Error, but just return common is fine for now
+                    $vin_array = $vin_common_array;
+                    $vin_array['specification']['name'] = $specification;
+                    $vin_array['specification']['type'] = 'common';
+                    $vin_array['specification']['supported'] = 'FFALSE';
+                    break;
+            } //END switch ($specification)
+        } //END if (in_array($specification, $supported_from_common_specification_array))
+
+        if (in_array($specification, $supported_custom_specification_array)) {
+            switch ($specification) {
+                case 'acme':
+                    $vin_array = _vin_acmeCarDealer_pack($vin_edmunds_array);
+                    break;
+
+                default:
+                    # SHOULD Re-Write to Throw an Error, but just return common is fine for now
+                    $vin_array = _vin_common_pack($vin_edmunds_array);
+                    $vin_array['specification']['name'] = $specification;
+                    $vin_array['specification']['type'] = 'custom';
+                    $vin_array['specification']['supported'] = 'FFALSE';
+                    break;
+            }
+        } //END if (in_array($specification, $supported_custom_specification_array))
+
+        if (!isset($vin_array['specification']['name'])) {
+            # SHOULD Re-Write to Throw an Error, but just return common is fine for now
+            $vin_array = _vin_common_pack($vin_edmunds_array);
+            // $vin_array = array();
+            $vin_array['specification']['name'] = $specification;
+            $vin_array['specification']['type'] = 'none';
+            $vin_array['specification']['supported'] = 'FFALSE';
+        }
+        return $vin_array;
+    }
+
+    function _vin_zenithCarDealer_pack($vin_packed_array = array()) {
+        #\_ HOLDER for From-Common Specification Above
+        #  \_ NOTE: this is too simple to be actual, but for this holder...
+        $vin_repacked_array['zenith_year'] = $vin_packed_array['year'];
+        $vin_repacked_array['zenith_make'] = $vin_packed_array['make'];
+        $vin_repacked_array['zenith_model'] = $vin_packed_array['model'];
+        $vin_repacked_array['zenith_vin'] = $vin_packed_array['vin'];
+
+        $vin_repacked_array['specification']['name'] = 'zenith'; //from calling?
+        $vin_repacked_array['specification']['type'] = 'common'; //from calling?
+        $vin_repacked_array['specification']['supported'] = 'TTRUE';
+
+        return $vin_repacked_array;
+    }
+
+    function _vin_acmeCarDealer_pack($vin_edmunds_array = array()) {
+        #\_ HOLDER for Custom Specification Above
+        #  \_ NOTE: this is too simple to be actual, but for this holder...
+        $vin_packed_array['acme_year'] = $vin_edmunds_array['years'][0]['year'];
+        $vin_packed_array['acme_make'] = $vin_edmunds_array['make']['name'];
+        $vin_packed_array['acme_model'] = $vin_edmunds_array['model']['name'];
+        $vin_packed_array['acme_vin'] = $vin_edmunds_array['vin'];
+
+        $vin_packed_array['specification']['name'] = 'acme'; //from calling?
+        $vin_packed_array['specification']['type'] = 'custom'; //from calling?
+        $vin_packed_array['specification']['supported'] = 'TTRUE';
+
+        return $vin_packed_array;
+    }
+
+    function _vin_common_pack($vin_edmunds_array = array()) {
+        $vin_packed_array['year'] = $vin_edmunds_array['years'][0]['year'];
+        $vin_packed_array['make'] = $vin_edmunds_array['make']['name'];
+        $vin_packed_array['model'] = $vin_edmunds_array['model']['name'];
+        $vin_packed_array['vin'] = $vin_edmunds_array['vin'];
+        return $vin_packed_array;
+    }
+
+    function _vin_prevalidate(&$vin, $mssg_return = FALSE){
     $vin = strtoupper($vin);
     $error_array = array();
     if (strlen($vin) !== 17) {
@@ -27,13 +175,18 @@ function _vin_prevalidate(&$vin){
     }
 
     if (count($error_array) > 0) {
+        $is_valid = FALSE;
         $message = 'Value does NOT meet common criteria of a VIN: ';
         $message .= implode('; ', $error_array) . '.';
     }else{
+        $is_valid = TRUE;
         $message = 'Value meets common criteria of a VIN.';
     }
-
-    return $message;
+    if ($mssg_return) {
+        return $message;
+    }else{
+        return $is_valid;
+    }
 }
 
 function _query_nid_array() {
