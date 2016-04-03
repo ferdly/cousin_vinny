@@ -102,7 +102,10 @@ function _drush_execute_vin_collect($vin, $specification = 'common') {
     $vin_array = _vin_pack($vin_edmunds_array, $specification);
     $buffer .= "SPEC:\r\n=====\r\n" . print_r($specification , TRUE). "\r\n";
     $buffer .= "PACKED:\r\n=======\r\n" . print_r($vin_array , TRUE);
-    $buffer .= "EDMUNDS FULL:\r\n=============\r\n" . print_r($vin_edmunds_array , TRUE);
+    $drush_dev = drush_get_option('dev',FALSE);
+    if ($drush_dev) {
+        $buffer .= "EDMUNDS FULL:\r\n=============\r\n" . print_r($vin_edmunds_array , TRUE);
+    }
     drush_print($buffer);
     return;
 }
@@ -207,10 +210,14 @@ function edmunds_drupalVINparser($vin) {
     function _vin_zenithCarDealer_pack($vin_packed_array = array()) {
         #\_ HOLDER for From-Common Specification Above
         #  \_ NOTE: this is too simple to be actual, but for this holder...
-        $vin_repacked_array['zenith_year'] = $vin_packed_array['year'];
-        $vin_repacked_array['zenith_make'] = $vin_packed_array['make'];
-        $vin_repacked_array['zenith_model'] = $vin_packed_array['model'];
-        $vin_repacked_array['zenith_vin'] = $vin_packed_array['vin'];
+        // $vin_repacked_array['zenith_year'] = $vin_packed_array['year'];
+        // $vin_repacked_array['zenith_make'] = $vin_packed_array['make'];
+        // $vin_repacked_array['zenith_model'] = $vin_packed_array['model'];
+        // $vin_repacked_array['['zenith_vin'] = $vin_packed_array['vin'];
+        foreach ($vin_packed_array as $key => $value) {
+            $new_key = 'zenith_' . $key;
+            $vin_repacked_array[$new_key] = $value;
+        }
 
         $vin_repacked_array['specification']['name'] = 'zenith'; //from calling?
         $vin_repacked_array['specification']['type'] = 'common'; //from calling?
@@ -235,10 +242,48 @@ function edmunds_drupalVINparser($vin) {
     }
 
     function _vin_common_pack($vin_edmunds_array = array()) {
+        $vin_packed_array['vin'] = $vin_edmunds_array['vin'];
         $vin_packed_array['year'] = $vin_edmunds_array['years'][0]['year'];
         $vin_packed_array['make'] = $vin_edmunds_array['make']['name'];
         $vin_packed_array['model'] = $vin_edmunds_array['model']['name'];
-        $vin_packed_array['vin'] = $vin_edmunds_array['vin'];
+
+        $engine_size = $vin_edmunds_array['engine']['size'];
+        $engine_displacement = $vin_edmunds_array['engine']['displacement'];
+        if ($engine_size + $engine_displacement + 0 > 0) {
+            $engine = $engine_displacement - 1;
+            $engine = $engine_size . ' L ' . $engine . ' CC';
+            $vin_packed_array['engine'] = $engine;
+            $vin_packed_array['engine-size'] = $engine_size;
+            $vin_packed_array['engine-displacement'] = $engine_displacement;
+        }
+
+        $drive = explode(' ', $vin_edmunds_array['drivenWheels']);
+        foreach ($drive as $key => $word) {
+            $word = $word == 'four' ? '4' : $word;
+            $drive[$key] = strtoupper(substr($word, 0, 1));
+        }
+        $vin_packed_array['drive'] = implode('', $drive);
+
+        $vin_packed_array['transmission'] = ucwords(strtolower($vin_edmunds_array['transmission']['transmissionType']));
+        $vin_packed_array['doors'] = $vin_edmunds_array['numOfDoors'];
+        $vin_packed_array['mpg-hwy'] = $vin_edmunds_array['MPG']['highway'];
+        $vin_packed_array['mpg-city'] = $vin_edmunds_array['MPG']['city'];
+
+        $vin_packed_array['fuel'] = $vin_edmunds_array['engine']['type'];
+        $vin_packed_array['fuel-type'] = $vin_edmunds_array['engine']['fuelType'];
+
+        /*<categories>*/
+        $vin_packed_array['epa-class'] = $vin_edmunds_array['categories']['EPAClass'];
+        $vin_packed_array['vehicle-size'] = $vin_edmunds_array['categories']['vehicleSize'];
+        $vin_packed_array['primary-body-type'] = $vin_edmunds_array['categories']['primaryBodyType'];
+        $vin_packed_array['vehicle-style'] = $vin_edmunds_array['categories']['vehicleStyle'];
+        $vin_packed_array['vehicle-type'] = $vin_edmunds_array['categories']['vehicleType'];
+        /*</categories>*/
+        /*<years-styles-submodel-modelName>*/
+        $vin_packed_array['model-name'] = $vin_edmunds_array['years'][0]['styles'][0]['submodel']['modelName'];
+        $vin_packed_array['model-descr'] = $vin_edmunds_array['years'][0]['styles'][0]['name'];
+        /*</years-styles-submodel-modelName>*/
+
         return $vin_packed_array;
     }
 
