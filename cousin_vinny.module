@@ -27,6 +27,7 @@ function cousin_vinny_menu() {
     // 'page arguments' => array('cousin_vinny_admin'),
     'access arguments' => array('administer cousin_vinny'),
     'type' => MENU_NORMAL_ITEM,
+    'file' => 'cousin_vinny.admin.inc',
    );
   $items['admin/config/development/cousin_vinny/overview'] = array(
     // 'title' => 'Cousin Vinny imap_fetch_overview(imap_stream, sequence)',
@@ -37,7 +38,6 @@ function cousin_vinny_menu() {
     'title' => 'Overview',
     'weight' => 1,
     'type' => MENU_DEFAULT_LOCAL_TASK,
-    'file' => 'cousin_vinny.admin.inc',
    );
   $items['admin/config/development/cousin_vinny/test'] = array(
     'title' => 'Cousin Vinny Test',
@@ -47,6 +47,7 @@ function cousin_vinny_menu() {
     'access arguments' => array('administer cousin_vinny'),
     'weight' => 3,
     'type' => MENU_LOCAL_TASK,
+    'file' => 'cousin_vinny.admin.inc',
    );
   $items['admin/config/development/cousin_vinny/settings'] = array(
     'title' => 'Cousin Vinny Settings',
@@ -56,61 +57,12 @@ function cousin_vinny_menu() {
     'access arguments' => array('administer cousin_vinny'),
     'weight' => 2,
     'type' => MENU_LOCAL_TASK,
+    'file' => 'cousin_vinny.admin.inc',
    );
 
   return $items;
 }
 
-function cousin_vinny_overview() {
-    return 'Hello Overview!';
-}
-function cousin_vinny_test() {
-  $form = array();
-
-  $form['cousin_vinny_test'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Test VIN'),
-    // '#default_value' => variable_get('cousin_vinny_test_vin', 3),
-    '#default_value' => 'KL1TD5DE2BB119431',
-    '#size' => 25,
-    '#maxlength' => 17,
-    '#description' => t("The Test VIN for Cousin Vinny testing."),
-    '#required' => TRUE,
-  );
-
-  return system_settings_form($form);
-}
-
-function cousin_vinny_settings() {
-  $form = array();
-
-  $form['cousin_vinny_content_type'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Content Type'),
-    // '#default_value' => variable_get('cousin_vinny_test_vin', 3),
-    '#default_value' => 'Vehicle',
-    '#size' => 200,
-    '#maxlength' => 128,
-    '#description' => t("The Content Type for Cousin Vinny."),
-    '#required' => TRUE,
-  );
-  $form['cousin_vinny_content_edmunds_key'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Edmunds API Key'),
-    '#default_value' => variable_get('cousin_vinny_content_edmunds_key', 'hwxwzk7x36pxvtvtc8reqtrp'),
-    // '#default_value' => 'hwxwzk7x36pxvtvtc8reqtrp',
-    '#size' => 200,
-    '#maxlength' => 128,
-    '#description' => t("The API Key for Edmunds."),
-    '#required' => TRUE,
-  );
-
-  return system_settings_form($form);
-}
-
-/**
- * END: Tradition Drupal Module Functionality
- */
 
 /**
  * Example function.
