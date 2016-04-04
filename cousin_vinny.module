@@ -1,4 +1,17 @@
 <?php
+
+/**
+ * Implements hook_permission
+ */
+function cousin_vinny_permission() {
+  return array(
+    'administer cousin_vinny' => array(
+      'title' => t('Administer Cousin Vinny'),
+      'description' => t('Perform administration tasks related to the Cousin Vinny module'),
+    ),
+  );
+}
+
 /**
  * implemement hook_menu
  */
@@ -12,7 +25,7 @@ function cousin_vinny_menu() {
     'description' => 'Description of Cousin Vinny Configuration',
     'page callback' => 'cousin_vinny_overview',
     // 'page arguments' => array('cousin_vinny_admin'),
-    'access arguments' => array('administer cousin_vinny settings'),
+    'access arguments' => array('administer cousin_vinny'),
     'type' => MENU_NORMAL_ITEM,
    );
   $items['admin/config/development/cousin_vinny/overview'] = array(
@@ -20,17 +33,18 @@ function cousin_vinny_menu() {
     // 'description' => 'Description of Cousin Vinny Overview',
     // 'page callback' => 'cousin_vinny_ooverview',
     // 'page arguments' => array('cousin_vinny_test'),
-    // 'access arguments' => array('administer cousin_vinny settings'),
+    // 'access arguments' => array('administer cousin_vinny'),
     'title' => 'Overview',
     'weight' => 1,
     'type' => MENU_DEFAULT_LOCAL_TASK,
+    'file' => 'cousin_vinny.admin.inc',
    );
   $items['admin/config/development/cousin_vinny/test'] = array(
     'title' => 'Cousin Vinny Test',
     'description' => 'Description of Cousin Vinny Test',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('cousin_vinny_test'),
-    'access arguments' => array('administer cousin_vinny settings'),
+    'access arguments' => array('administer cousin_vinny'),
     'weight' => 3,
     'type' => MENU_LOCAL_TASK,
    );
@@ -39,7 +53,7 @@ function cousin_vinny_menu() {
     'description' => 'Description of Cousin Vinny Settings',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('cousin_vinny_settings'),
-    'access arguments' => array('administer cousin_vinny settings'),
+    'access arguments' => array('administer cousin_vinny'),
     'weight' => 2,
     'type' => MENU_LOCAL_TASK,
    );
