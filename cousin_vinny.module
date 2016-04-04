@@ -10,17 +10,19 @@ function cousin_vinny_menu() {
   $items['admin/config/development/cousin_vinny'] = array(
     'title' => 'Cousin Vinny Configuration',
     'description' => 'Description of Cousin Vinny Configuration',
-    // 'page callback' => 'drupal_get_form',
+    'page callback' => 'cousin_vinny_overview',
     // 'page arguments' => array('cousin_vinny_admin'),
     'access arguments' => array('administer cousin_vinny settings'),
     'type' => MENU_NORMAL_ITEM,
    );
   $items['admin/config/development/cousin_vinny/overview'] = array(
-    'title' => 'Cousin Vinny imap_fetch_overview(imap_stream, sequence)',
-    'description' => 'Description of Cousin Vinny Overview',
-    // 'page callback' => 'drupal_get_form',
+    // 'title' => 'Cousin Vinny imap_fetch_overview(imap_stream, sequence)',
+    // 'description' => 'Description of Cousin Vinny Overview',
+    // 'page callback' => 'cousin_vinny_ooverview',
     // 'page arguments' => array('cousin_vinny_test'),
-    'access arguments' => array('administer cousin_vinny settings'),
+    // 'access arguments' => array('administer cousin_vinny settings'),
+    'title' => 'Overview',
+    'weight' => 1,
     'type' => MENU_DEFAULT_LOCAL_TASK,
    );
   $items['admin/config/development/cousin_vinny/test'] = array(
@@ -29,6 +31,7 @@ function cousin_vinny_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('cousin_vinny_test'),
     'access arguments' => array('administer cousin_vinny settings'),
+    'weight' => 3,
     'type' => MENU_LOCAL_TASK,
    );
   $items['admin/config/development/cousin_vinny/settings'] = array(
@@ -37,12 +40,16 @@ function cousin_vinny_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('cousin_vinny_settings'),
     'access arguments' => array('administer cousin_vinny settings'),
+    'weight' => 2,
     'type' => MENU_LOCAL_TASK,
    );
 
   return $items;
 }
 
+function cousin_vinny_overview() {
+    return 'Hello Overview!';
+}
 function cousin_vinny_test() {
   $form = array();
 
