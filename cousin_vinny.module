@@ -7,7 +7,7 @@ function cousin_vinny_menu() {
 
   $items = array();
 
-  $items['admin/config/cousin_vinny'] = array(
+  $items['admin/config/development/cousin_vinny'] = array(
     'title' => 'Cousin Vinny Configuration',
     'description' => 'Description of Cousin Vinny Configuration',
     // 'page callback' => 'drupal_get_form',
@@ -15,21 +15,21 @@ function cousin_vinny_menu() {
     'access arguments' => array('administer cousin_vinny settings'),
     'type' => MENU_NORMAL_ITEM,
    );
-  $items['admin/config/cousin_vinny/test'] = array(
+  $items['admin/config/development/cousin_vinny/test'] = array(
     'title' => 'Cousin Vinny Test',
     'description' => 'Description of Cousin Vinny Test',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('cousin_vinny_test'),
     'access arguments' => array('administer cousin_vinny settings'),
-    'type' => MENU_NORMAL_ITEM,
+    'type' => MENU_LOCAL_TASK,
    );
-  $items['admin/config/cousin_vinny/settings'] = array(
+  $items['admin/config/development/cousin_vinny/settings'] = array(
     'title' => 'Cousin Vinny Settings',
     'description' => 'Description of Cousin Vinny Settings',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('cousin_vinny_settings'),
     'access arguments' => array('administer cousin_vinny settings'),
-    'type' => MENU_NORMAL_ITEM,
+    'type' => MENU_LOCAL_TASK,
    );
 
   return $items;
