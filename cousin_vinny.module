@@ -250,11 +250,12 @@ function edmunds_drupalVINparser($vin) {
         $engine_size = $vin_edmunds_array['engine']['size'];
         $engine_displacement = $vin_edmunds_array['engine']['displacement'];
         if ($engine_size + $engine_displacement + 0 > 0) {
-            $engine = $engine_displacement - 1;
-            $engine = $engine_size . ' L ' . $engine . ' CC';
-            $vin_packed_array['engine'] = $engine;
             $vin_packed_array['engine-size'] = $engine_size;
             $vin_packed_array['engine-displacement'] = $engine_displacement;
+            $engine_displacement = $engine_displacement + 0 > 0 ? $engine_displacement . 'CC ' : '';
+            $engine_size = $engine_size + 0 > 0 ? $engine_size . 'L ' : '';
+            $engine = trim($engine_size . $engine_displacement);
+            $vin_packed_array['engine'] = $engine;
         }
 
         $drive = explode(' ', $vin_edmunds_array['drivenWheels']);
