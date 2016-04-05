@@ -4,6 +4,7 @@ function cousin_vinny_overview() {
     return 'Hello Overview!';
 }
 function cousin_vinny_test($form, $form_state) {
+
   $form = array();
 
   $form["test_vin_select"] = array(
@@ -58,6 +59,12 @@ function cousin_vinny_cousin_vinny_test_submit($form, &$form_state) {
   drupal_set_message(t('The form has been submitted.'));
 }
 function cousin_vinny_settings() {
+  global $user;
+  if (in_array('Canadian', $user->roles)) {
+    drupal_set_message($user->name . " is a Canadian.");
+  }else{
+    drupal_set_message($user->name . " is not a Canadian.");
+  }
   $form = array();
 
   $form['cousin_vinny_content_type'] = array(

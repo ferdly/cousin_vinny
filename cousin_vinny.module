@@ -11,6 +11,102 @@ function cousin_vinny_permission() {
     ),
   );
 }
+/**
+* Implementation of hook_form_alter().
+*/
+function cousin_vinny_menu_alter(&$callbacks) {
+    $callbacks['node/add/temp-reading']['page callback'] = 'cousin_vinny_celcius';
+    // global $user;
+    // if ($form_id == 'temp_reading_node_form') {
+    //     $markup = '';
+    //     if (in_array('Canadian', $user->roles)) {
+    //         $markup .= $user->name . " is a Canadian.<br>";
+    //     }else{
+    //         $markup .= $user->name . " is not a Canadian.<br>";
+    //     }
+    //     $minute = date('i') + 0;
+    //     $odd_minute = $minute % 2;
+    //     if ($odd_minute) {
+    //         $markup .= "$minute is Odd.<br>";
+    //     }else{
+    //         $markup .= "$minute is Even.<br>";
+    //     }
+    //     $form['html_markup']['#markup'] = $markup;
+    //     dpm($form, '$form');
+    //     dpm($form_state, '$form_state');
+    // }
+}
+/**
+* Implementation of hook_form_alter().
+*/
+// function cousin_vinny_form_alter(&$form, &$form_state, $form_id) {
+//     global $user;
+//     if ($form_id == 'temp_reading_node_form') {
+//         $markup = '';
+//         if (in_array('Canadian', $user->roles)) {
+//             $markup .= $user->name . " is a Canadian.<br>";
+//         }else{
+//             $markup .= $user->name . " is not a Canadian.<br>";
+//         }
+//         $minute = date('i') + 0;
+//         $odd_minute = $minute % 2;
+//         if ($odd_minute) {
+//             $markup .= "$minute is Odd.<br>";
+//         }else{
+//             $markup .= "$minute is Even.<br>";
+//         }
+//         $form['html_markup']['#markup'] = $markup;
+//         dpm($form, '$form');
+//         dpm($form_state, '$form_state');
+//     }
+// }
+
+function cousin_vinny_celcius(){
+  global $user;
+  if (in_array('Canadian', $user->roles)) {
+    drupal_set_message($user->name . " is a Canadian.<br>");
+  $form['degrees_celcius'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Temperature in &deg; C'),
+    // '#default_value' => variable_get('cousin_vinny_test_vin', 3),
+    '#default_value' => '15',
+    '#size' => 25,
+    '#maxlength' => 17,
+    '#description' => t("Enter the Temperature in degrees Celcius."),
+    '#required' => TRUE,
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Submit',
+  );
+    // $form['#submit'][] = 'cousin_vinny_celcius_ssubmit';
+    // $output = drupal_get_form('cousin_vinny_celcius');
+    // return $output;
+    return $form;
+  }
+//exactly the same as node_add($type) from node.pages.inc with commented changes
+// global $user;
+    $type = 'temp_reading';
+    $types = node_type_get_types();
+    $node = (object) array('uid' => $user->uid, 'name' => (isset($user->name) ? $user->name : ''), 'type' => $type, 'language' => LANGUAGE_NONE);
+    drupal_set_title(t('Create @name', array('@name' => $types[$type]->name)), PASS_THROUGH);
+    // $output = drupal_get_form($type . '_node_form', $node);
+    $output = drupal_get_form($type . '_node_form', $node);
+
+    return $output;
+}
+
+function cousin_vinny_celcius_ssubmit() {
+    drupal_set_message('Form was ssubmitted');
+}
+
+function _celsius_to_fahrenheit($celsius) {
+    $fahrenheit = $celsius;
+    $fahrenheit = $fahrenheit * 9;
+    $fahrenheit = $fahrenheit / 5;
+    $fahrenheit += 32;
+    return $fahrenheit;
+}
 
 /**
  * implemement hook_menu
