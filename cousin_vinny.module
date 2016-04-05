@@ -91,6 +91,32 @@ function _drush_execute_vin_collect($vin, $specification = 'common') {
     return;
 }
 
+function _test_execute_vin_collect($vin, $specification = 'common', $option_array = array()) {
+    $buffer = '';
+    $vin_is_valid = _vin_prevalidate($vin);
+    if ($vin_is_valid !== TRUE) {
+        $message = _vin_prevalidate($vin, TRUE);
+        $buffer .= "'" . $vin . "' was the argument provided/selected to function '" . __FUNCTION__ . "'. Message: " . $message;
+        drupal_set_message(t($buffer));
+        return;
+    }
+    // $json = drupal_http_request('http://maps.google.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&sensor=false');
+    // $buffer .= '$json = drupal_http_request(' . $vin . ');';
+    $vin_edmunds_array = edmunds_drupalVINparser($vin);
+    $vin_array = _vin_pack($vin_edmunds_array, $specification);
+    dpm($vin_array,'Test of Cousin Vinny Common Output');
+    // $buffer .= "SPEC:\r\n=====\r\n" . print_r($specification , TRUE). "\r\n";
+    // $buffer .= "PACKED:\r\n=======\r\n" . print_r($vin_array , TRUE);
+    // $drush_dev = drush_get_option('dev',FALSE);
+    if ($option_array['dev'] === TRUE) {
+        // $buffer .= "EDMUNDS FULL:\r\n=============\r\n" . print_r($vin_edmunds_array , TRUE);
+        dpm($vin_edmunds_array,"Full output from Edmunds' API");
+        drupal_set_message("Note: Edmunds' output is multi-dimensional array.");
+    }
+    // echo $buffer;
+    return;
+}
+
 function edmunds_drupalVINparser($vin) {
     /**
      * full from edmunds apiConsole
@@ -98,7 +124,6 @@ function edmunds_drupalVINparser($vin) {
      *
      * 'https://api.edmunds.com/api/vehicle/v2/vins/2G1FC3D33C9165616?fmt=json&api_key=hwxwzk7x36pxvtvtc8reqtrp'
      */
-    $
 
     $dhr = '';
     $protocol = 'http'; //'https';
@@ -210,10 +235,10 @@ function edmunds_drupalVINparser($vin) {
     function _vin_acmeCarDealer_pack($vin_edmunds_array = array()) {
         #\_ HOLDER for Custom Specification Above
         #  \_ NOTE: this is too simple to be actual, but for this holder...
-        $vin_packed_array['acme_year'] = $vin_edmunds_array['years'][0]['year'];
-        $vin_packed_array['acme_make'] = $vin_edmunds_array['make']['name'];
-        $vin_packed_array['acme_model'] = $vin_edmunds_array['model']['name'];
-        $vin_packed_array['acme_vin'] = $vin_edmunds_array['vin'];
+        $vin_packed_array['acme_year'] = @$vin_edmunds_array['years'][0]['year'];
+        $vin_packed_array['acme_make'] = @$vin_edmunds_array['make']['name'];
+        $vin_packed_array['acme_model'] = @$vin_edmunds_array['model']['name'];
+        $vin_packed_array['acme_vin'] = @$vin_edmunds_array['vin'];
 
         $vin_packed_array['specification']['name'] = 'acme'; //from calling?
         $vin_packed_array['specification']['type'] = 'custom'; //from calling?
@@ -223,13 +248,13 @@ function edmunds_drupalVINparser($vin) {
     }
 
     function _vin_common_pack($vin_edmunds_array = array()) {
-        $vin_packed_array['vin'] = $vin_edmunds_array['vin'];
-        $vin_packed_array['year'] = $vin_edmunds_array['years'][0]['year'];
-        $vin_packed_array['make'] = $vin_edmunds_array['make']['name'];
-        $vin_packed_array['model'] = $vin_edmunds_array['model']['name'];
+        $vin_packed_array['vin'] = @$vin_edmunds_array['vin'];
+        $vin_packed_array['year'] = @$vin_edmunds_array['years'][0]['year'];
+        $vin_packed_array['make'] = @$vin_edmunds_array['make']['name'];
+        $vin_packed_array['model'] = @$vin_edmunds_array['model']['name'];
 
-        $engine_size = $vin_edmunds_array['engine']['size'];
-        $engine_displacement = $vin_edmunds_array['engine']['displacement'];
+        $engine_size = @$vin_edmunds_array['engine']['size'];
+        $engine_displacement = @$vin_edmunds_array['engine']['displacement'];
         if ($engine_size + $engine_displacement + 0 > 0) {
             $vin_packed_array['engine-size'] = $engine_size;
             $vin_packed_array['engine-displacement'] = $engine_displacement;
@@ -239,31 +264,31 @@ function edmunds_drupalVINparser($vin) {
             $vin_packed_array['engine'] = $engine;
         }
 
-        $drive = explode(' ', $vin_edmunds_array['drivenWheels']);
+        $drive = explode(' ', @$vin_edmunds_array['drivenWheels']);
         foreach ($drive as $key => $word) {
             $word = $word == 'four' ? '4' : $word;
             $drive[$key] = strtoupper(substr($word, 0, 1));
         }
         $vin_packed_array['drive'] = implode('', $drive);
 
-        $vin_packed_array['transmission'] = ucwords(strtolower($vin_edmunds_array['transmission']['transmissionType']));
-        $vin_packed_array['doors'] = $vin_edmunds_array['numOfDoors'];
-        $vin_packed_array['mpg-hwy'] = $vin_edmunds_array['MPG']['highway'];
-        $vin_packed_array['mpg-city'] = $vin_edmunds_array['MPG']['city'];
+        $vin_packed_array['transmission'] = ucwords(strtolower(@$vin_edmunds_array['transmission']['transmissionType']));
+        $vin_packed_array['doors'] = @$vin_edmunds_array['numOfDoors'];
+        $vin_packed_array['mpg-hwy'] = @$vin_edmunds_array['MPG']['highway'];
+        $vin_packed_array['mpg-city'] = @$vin_edmunds_array['MPG']['city'];
 
-        $vin_packed_array['fuel'] = $vin_edmunds_array['engine']['type'];
-        $vin_packed_array['fuel-type'] = $vin_edmunds_array['engine']['fuelType'];
+        $vin_packed_array['fuel'] = @$vin_edmunds_array['engine']['type'];
+        $vin_packed_array['fuel-type'] = @$vin_edmunds_array['engine']['fuelType'];
 
         /*<categories>*/
-        $vin_packed_array['epa-class'] = $vin_edmunds_array['categories']['EPAClass'];
-        $vin_packed_array['vehicle-size'] = $vin_edmunds_array['categories']['vehicleSize'];
-        $vin_packed_array['primary-body-type'] = $vin_edmunds_array['categories']['primaryBodyType'];
-        $vin_packed_array['vehicle-style'] = $vin_edmunds_array['categories']['vehicleStyle'];
-        $vin_packed_array['vehicle-type'] = $vin_edmunds_array['categories']['vehicleType'];
+        $vin_packed_array['epa-class'] = @$vin_edmunds_array['categories']['EPAClass'];
+        $vin_packed_array['vehicle-size'] = @$vin_edmunds_array['categories']['vehicleSize'];
+        $vin_packed_array['primary-body-type'] = @$vin_edmunds_array['categories']['primaryBodyType'];
+        $vin_packed_array['vehicle-style'] = @$vin_edmunds_array['categories']['vehicleStyle'];
+        $vin_packed_array['vehicle-type'] = @$vin_edmunds_array['categories']['vehicleType'];
         /*</categories>*/
         /*<years-styles-submodel-modelName>*/
-        $vin_packed_array['model-name'] = $vin_edmunds_array['years'][0]['styles'][0]['submodel']['modelName'];
-        $vin_packed_array['model-descr'] = $vin_edmunds_array['years'][0]['styles'][0]['name'];
+        $vin_packed_array['model-name'] = @$vin_edmunds_array['years'][0]['styles'][0]['submodel']['modelName'];
+        $vin_packed_array['model-descr'] = @$vin_edmunds_array['years'][0]['styles'][0]['name'];
         /*</years-styles-submodel-modelName>*/
 
         return $vin_packed_array;
