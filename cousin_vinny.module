@@ -16,25 +16,6 @@ function cousin_vinny_permission() {
 */
 function cousin_vinny_menu_alter(&$callbacks) {
     $callbacks['node/add/temp-reading']['page callback'] = 'cousin_vinny_celcius';
-    // global $user;
-    // if ($form_id == 'temp_reading_node_form') {
-    //     $markup = '';
-    //     if (in_array('Canadian', $user->roles)) {
-    //         $markup .= $user->name . " is a Canadian.<br>";
-    //     }else{
-    //         $markup .= $user->name . " is not a Canadian.<br>";
-    //     }
-    //     $minute = date('i') + 0;
-    //     $odd_minute = $minute % 2;
-    //     if ($odd_minute) {
-    //         $markup .= "$minute is Odd.<br>";
-    //     }else{
-    //         $markup .= "$minute is Even.<br>";
-    //     }
-    //     $form['html_markup']['#markup'] = $markup;
-    //     dpm($form, '$form');
-    //     dpm($form_state, '$form_state');
-    // }
 }
 /**
 * Implementation of hook_form_alter().
@@ -69,7 +50,7 @@ function cousin_vinny_celcius(){
     '#type' => 'textfield',
     '#title' => t('Temperature in &deg; C'),
     // '#default_value' => variable_get('cousin_vinny_test_vin', 3),
-    '#default_value' => '15',
+    '#default_value' => 'Fifteen',
     '#size' => 25,
     '#maxlength' => 17,
     '#description' => t("Enter the Temperature in degrees Celcius."),
